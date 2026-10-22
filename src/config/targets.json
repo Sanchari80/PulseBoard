@@ -1,0 +1,17 @@
+[
+  {
+    "api_name": "PatientDataAPI (live demo)",
+    "url": "https://jsonplaceholder.typicode.com/users",
+    "method": "GET"
+  },
+  {
+    "api_name": "AppointmentAPI (live demo)",
+    "url": "https://jsonplaceholder.typicode.com/posts",
+    "method": "GET"
+  },
+  {
+    "api_name": "CaregiverScheduleAPI (live demo)",
+    "url": "https://jsonplaceholder.typicode.com/todos?userId=999",
+    "method": "GET"
+  }
+]

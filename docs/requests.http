@@ -1,0 +1,44 @@
+### Works with the VS Code "REST Client" extension, or copy the curl lines from README.md
+@base = http://localhost:4000
+
+### Health
+GET {{base}}/health
+
+### Analyse a batch (the assignment example)
+POST {{base}}/monitor
+Content-Type: application/json
+
+[
+  { "api_name": "PatientDataAPI", "response_time_ms": 1200, "status_code": 200, "records_returned": 50 },
+  { "api_name": "AppointmentAPI", "response_time_ms": 5500, "status_code": 500, "records_returned": 0 }
+]
+
+### Run the bundled static JSON file
+POST {{base}}/monitor/sample
+
+### Simulate 50 responses
+POST {{base}}/monitor/simulate?count=50
+
+### Active alerts
+GET {{base}}/alerts
+
+### Critical alerts only, searching "appointment"
+GET {{base}}/alerts?severity=critical&q=appointment
+
+### Resolved alerts
+GET {{base}}/alerts?status=resolved
+
+### Stats
+GET {{base}}/alerts/stats
+
+### Per-API health
+GET {{base}}/monitor/apis
+
+### System configuration
+GET {{base}}/monitor/status
+
+### Resolve one alert (replace the id)
+PATCH {{base}}/alerts/REPLACE_ID/resolve
+
+### E-mail a report of active alerts
+POST {{base}}/alerts/report/email

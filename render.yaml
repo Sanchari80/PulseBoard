@@ -1,0 +1,28 @@
+# One-click deploy on Render: New + > Blueprint > select this repo.
+services:
+  - type: web
+    name: intelligent-api-monitor
+    runtime: node
+    plan: free
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      - key: MONGODB_URI
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      - key: MONITOR_API_KEY
+        generateValue: true
+      - key: ENABLE_SCHEDULER
+        value: "false"
+      - key: POLL_INTERVAL_MS
+        value: "120000"
+      - key: EMAIL_ENABLED
+        value: "false"

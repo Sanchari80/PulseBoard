@@ -1,0 +1,6 @@
+{
+  "_comment": "Optional per-API overrides of the global thresholds. Any API not listed uses the defaults from .env.",
+  "PatientDataAPI": { "responseTimeWarnMs": 2000, "responseTimeCriticalMs": 5000, "minRecords": 1 },
+  "AppointmentAPI": { "responseTimeWarnMs": 2500, "responseTimeCriticalMs": 5000, "minRecords": 1 },
+  "BillingAPI": { "responseTimeWarnMs": 3000, "responseTimeCriticalMs": 8000, "minRecords": 0 }
+}

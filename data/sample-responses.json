@@ -1,0 +1,12 @@
+[
+  { "api_name": "PatientDataAPI", "response_time_ms": 1200, "status_code": 200, "records_returned": 50 },
+  { "api_name": "AppointmentAPI", "response_time_ms": 5500, "status_code": 500, "records_returned": 0 },
+  { "api_name": "BillingAPI", "response_time_ms": 3400, "status_code": 200, "records_returned": 18 },
+  { "api_name": "CaregiverScheduleAPI", "response_time_ms": 640, "status_code": 200, "records_returned": 0 },
+  { "api_name": "MedicationAPI", "response_time_ms": 900, "status_code": 404, "records_returned": 0 },
+  { "api_name": "InsuranceVerificationAPI", "response_time_ms": 10000, "status_code": 504, "records_returned": 0 },
+  { "api_name": "LabResultsAPI", "response_time_ms": 780, "status_code": 200, "records_returned": -3 },
+  { "api_name": "VisitNotesAPI", "response_time_ms": 450, "status_code": 200, "records_returned": 112 },
+  { "api_name": "PatientDataAPI", "response_time_ms": 2600, "status_code": 200 },
+  { }
+]
