@@ -30,8 +30,9 @@ const config = {
   publicDemoMaxItems: int(process.env.PUBLIC_DEMO_MAX_ITEMS, 100),
 
   db: {
-    // When MONGODB_URI is empty the app falls back to an in-memory store (zero-config demo).
+    // Memory fallback is opt-in when a configured MongoDB connection cannot be reached.
     uri: process.env.MONGODB_URI || '',
+    fallbackToMemory: bool(process.env.MONGODB_FALLBACK_TO_MEMORY, false),
   },
 
   thresholds: {

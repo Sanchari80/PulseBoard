@@ -59,12 +59,15 @@ npm run monitor:file        # run data/sample-responses.json from the command li
 ## Deploy (Render + MongoDB Atlas + Gemini) – about 10 minutes
 
 1. **MongoDB Atlas** – create a free M0 cluster → Database Access: add a user → Network Access:
-   allow only the deployment provider's outbound IPs where available → Connect → Drivers → copy the `mongodb+srv://…` string and add a database
+   allow the deployment provider's outbound IP addresses → Connect → Drivers → copy the `mongodb+srv://…` string and add a database
    name, e.g. `…mongodb.net/api_monitor?retryWrites=true&w=majority`.
 2. **Gemini key** – https://aistudio.google.com/apikey → Create API key.
 3. **GitHub** – push this folder to a new repository.
 4. **Render** – New + → **Blueprint** → choose the repo (it reads `render.yaml`).
    Fill in `MONGODB_URI` and `GEMINI_API_KEY` when asked; Render generates a `MONITOR_API_KEY` → Apply.
+   The Blueprint enables `MONGODB_FALLBACK_TO_MEMORY` so the public demo can still start if Atlas is
+   unreachable. Check `/monitor/status` for `storage: "memory"` or `storage: "mongodb"`; memory data
+   is temporary. Fix Atlas Network Access to restore persistent storage.
 5. Open the `https://<name>.onrender.com` URL. The header should show *AI: gemini-2.5-flash* and
    *MongoDB*. Click **Run sample file**.
 
@@ -92,7 +95,8 @@ demo dashboard.
 The page shows a public-demo notice when `PUBLIC_DEMO_MODE=true`. No Gemini key, MongoDB URI, SMTP
 credentials, or recruiter login is required to try the demo. Without `GEMINI_API_KEY`, alert text
 uses the built-in rule-based writer; without `MONGODB_URI`, alerts are held in memory and can reset
-after a service restart. To use the public demo on a different host, set `PUBLIC_DEMO_MODE=true`,
+after a service restart. When `MONGODB_FALLBACK_TO_MEMORY=true`, an unreachable MongoDB also falls
+back to temporary memory storage and logs the connection error. To use the public demo on a different host, set `PUBLIC_DEMO_MODE=true`,
 `PUBLIC_DEMO_MAX_ITEMS=100`, and `MONITOR_API_KEY` in that host's environment before deployment.
 Keep live polling disabled unless the target file contains approved endpoints.
 
