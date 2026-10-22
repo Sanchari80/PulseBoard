@@ -18,6 +18,9 @@ const SAMPLE_FILE = path.resolve(__dirname, '../../data/sample-responses.json');
 /** POST /monitor – analyse one response or a batch. */
 async function monitor(req, res) {
   const items = parseMonitorBody(req.body);
+  if (config.publicDemoMode && items.length > config.publicDemoMaxItems) {
+    throw AppError.badRequest(`Public demo batches are limited to ${config.publicDemoMaxItems} responses`);
+  }
   const source = req.get('x-monitor-source') === 'file' ? 'file' : 'api';
   const result = await processBatch(items, { source });
   res.status(result.summary.alertsCreated ? 201 : 200).json(result);
@@ -55,7 +58,8 @@ function status(req, res) {
     scheduler: scheduler.status(),
     thresholds: config.thresholds,
     batchMaxItems: config.batch.maxItems,
-    writeProtected: Boolean(config.monitorApiKey),
+    writeProtected: Boolean(config.monitorApiKey) || config.publicDemoMode,
+    publicDemoMode: config.publicDemoMode,
   });
 }
 

@@ -6,3 +6,4 @@ process.env.MONGODB_URI = '';
 process.env.EMAIL_ENABLED = 'false';
 process.env.ENABLE_SCHEDULER = 'false';
 process.env.MONITOR_API_KEY = '';
+process.env.PUBLIC_DEMO_MODE = 'false';

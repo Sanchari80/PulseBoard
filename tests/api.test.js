@@ -7,6 +7,7 @@ const { createApp } = require('../src/app');
 const { setRepository } = require('../src/repositories');
 const MemoryAlertRepository = require('../src/repositories/memoryAlertRepository');
 const registry = require('../src/services/apiHealthRegistry');
+const config = require('../src/config');
 
 const EXAMPLE = [
   { api_name: 'PatientDataAPI', response_time_ms: 1200, status_code: 200, records_returned: 50 },
@@ -40,6 +41,28 @@ test('POST /monitor detects the anomaly and stores an AI/rule alert', async () =
   assert.equal(a.status, 'active');
   assert.match(a.message, /AppointmentAPI failed with status 500/);
   assert.match(a.message, /0 records/);
+});
+
+test('public demo mode allows bounded monitoring checks without exposing management actions', async () => {
+  const previousDemoMode = config.publicDemoMode;
+  const previousApiKey = config.monitorApiKey;
+  config.publicDemoMode = true;
+  config.monitorApiKey = 'test-owner-key';
+  app = createApp();
+  try {
+    await request(app).post('/monitor/sample').send({}).expect(200);
+    await request(app).post('/monitor').send(EXAMPLE).expect(200);
+    await request(app).post('/monitor/simulate?count=5').send({}).expect(200);
+    await request(app).post('/monitor').send(Array(101).fill(EXAMPLE[0])).expect(400);
+    await request(app).post('/monitor/poll').send({}).expect(401);
+    await request(app).post('/alerts/resolve-all').send({}).expect(401);
+    await request(app).post('/alerts/report/email').send({}).expect(401);
+    config.monitorApiKey = '';
+    await request(app).post('/alerts/resolve-all').send({}).expect(401);
+  } finally {
+    config.publicDemoMode = previousDemoMode;
+    config.monitorApiKey = previousApiKey;
+  }
 });
 
 test('single object and { responses: [] } bodies are accepted', async () => {

@@ -13,6 +13,7 @@
     filter: 'active',
     q: '',
     status: null,
+    publicDemoMode: false,
     seenAlertIds: null,
     lastBeat: new Map(), // api -> timestamp of newest beat already drawn
     timer: null,
@@ -129,6 +130,8 @@
 
   /* ---------------- system info ---------------- */
   function renderStatus(s) {
+    state.publicDemoMode = Boolean(s.publicDemoMode);
+    $('#demoNote').hidden = !state.publicDemoMode;
     const set = (k, text, on, title) => {
       const li = $(`#sysinfo [data-k="${k}"]`);
       li.classList.toggle('on', on);
@@ -140,7 +143,9 @@
     set('ai', ai, s.ai.provider !== 'rule-based', s.ai.provider === 'rule-based' ? 'No LLM key configured – alerts are written by the built-in rule-based writer' : `Alerts are written by ${s.ai.provider} (${s.ai.model})`);
     set('storage', s.storage === 'mongodb' ? 'MongoDB' : 'In-memory store', s.storage === 'mongodb', s.storage === 'mongodb' ? 'Alerts are stored in MongoDB' : 'Alerts are kept in memory and cleared on restart. Set MONGODB_URI to persist them.');
     set('poll', s.scheduler.enabled ? `Auto-poll every ${Math.round(s.scheduler.intervalMs / 1000)} s` : 'Auto-poll off', s.scheduler.enabled, s.scheduler.enabled ? `Polling: ${s.scheduler.targets.join(', ')}` : 'Set ENABLE_SCHEDULER=true to poll live endpoints automatically');
-    $('#pollBtn').hidden = !s.scheduler.targets.length;
+    $('#pollBtn').hidden = state.publicDemoMode || !s.scheduler.targets.length;
+    $('#emailBtn').disabled = state.publicDemoMode || !s.email.enabled;
+    $('#emailBtn').title = state.publicDemoMode ? 'Email is disabled in the public recruiter demo' : s.email.enabled ? 'Email a report of open alerts' : 'Email is not configured on the server';
   }
 
   /* ---------------- vitals monitor ---------------- */
@@ -335,6 +340,7 @@
       btn.dataset.act = resolved ? 'reopen' : 'resolve';
       btn.textContent = resolved ? 'Reopen' : 'Resolve';
       btn.setAttribute('aria-label', `${btn.textContent} alert for ${a.apiName}`);
+      $('.alert__actions', node).hidden = state.publicDemoMode;
       frag.append(node);
     }
     // keep open "details" panels open across refreshes
@@ -378,7 +384,8 @@
     $('#cCritical').textContent = s.critical;
     $('#cWarning').textContent = s.warning;
     $('#cResolved').textContent = s.resolved;
-    $('#resolveAllBtn').disabled = s.active === 0;
+    $('#resolveAllBtn').disabled = s.active === 0 || state.publicDemoMode;
+    $('#resolveAllBtn').title = state.publicDemoMode ? 'Alert management is disabled in the public recruiter demo' : '';
     document.title = s.critical ? `(${s.critical}) Pulseboard · API Monitor` : 'Pulseboard · API Monitor';
 
     const ul = $('#byApi');

@@ -24,7 +24,7 @@ over a REST API, shown in a responsive dashboard, and can be e-mailed.
 | Storage | MongoDB via Mongoose (unique partial index = one open incident per problem). Falls back to in-memory when `MONGODB_URI` is empty |
 | `GET /alerts` | Active anomalies by default; filters for status, severity, API, free text; pagination |
 | Frontend | Responsive dashboard (phone, tablet, desktop, light/dark) served by the same server |
-| Write access | Optional `MONITOR_API_KEY`; Render generates one automatically for deployed writes |
+| Write access | Public demo can run bounded monitor checks without a key; alert management remains protected |
 | E-mail (optional) | Automatic mail on new critical alerts + "Email report" button (`POST /alerts/report/email`) |
 | Batch processing | Batches are grouped and de-duplicated, LLM calls are chunked (8 per call) and run 3 in parallel |
 | Error handling | Central error handler, consistent JSON errors with request id, malformed items never crash a batch |
@@ -72,7 +72,29 @@ The included `src/config/targets.json` contains public demo endpoints, not compa
 The Render scheduler is off by default so deployment will not poll those demo targets indefinitely.
 Replace them with approved endpoints and configure any required headers using deployment secrets
 before setting `ENABLE_SCHEDULER=true`. Never commit `.env`, API keys, credentials, or patient data.
-Render generates the write API key; the dashboard asks for it the first time a write action is used.
+The Render Blueprint enables a bounded public recruiter demo: `POST /monitor`, `POST /monitor/sample`
+and `POST /monitor/simulate` do not ask visitors for a key. They are limited to 20 requests per minute;
+custom JSON batches are capped at 100 responses. These checks are shared with visitors and may be
+lost when the in-memory store restarts. Do not submit real patient or confidential data. Alert
+resolution, email reports and live endpoint polling stay owner-key protected and are disabled in the
+demo dashboard.
+
+### Recruiter demo — no login or API key prompt
+
+1. Open the Render service URL and wait for the dashboard to load.
+2. Click **Run sample file** to show one healthy API plus several anomaly examples, including a
+   server error, slow response, zero records, missing data and invalid data.
+3. Select **Simulate** → **Simulate batch** to generate another bounded set of examples, or use
+   **Paste JSON** → **Analyse responses** to submit up to 100 synthetic responses.
+4. Review the API vitals, severity filters and alert details. Public demo mode hides protected
+   management controls, so recruiters do not need to retrieve or enter `MONITOR_API_KEY`.
+
+The page shows a public-demo notice when `PUBLIC_DEMO_MODE=true`. No Gemini key, MongoDB URI, SMTP
+credentials, or recruiter login is required to try the demo. Without `GEMINI_API_KEY`, alert text
+uses the built-in rule-based writer; without `MONGODB_URI`, alerts are held in memory and can reset
+after a service restart. To use the public demo on a different host, set `PUBLIC_DEMO_MODE=true`,
+`PUBLIC_DEMO_MAX_ITEMS=100`, and `MONITOR_API_KEY` in that host's environment before deployment.
+Keep live polling disabled unless the target file contains approved endpoints.
 
 Other hosts: any Node host works (`npm ci && npm start`), and a `Dockerfile` is included
 (`docker build -t api-monitor . && docker run -p 4000:4000 --env-file .env api-monitor`).

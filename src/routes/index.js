@@ -17,14 +17,28 @@ const writeLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: { code: 'RATE_LIMITED', message: 'Too many requests – try again in a minute' } },
 });
+const demoWriteLimiter = rateLimit({
+  windowMs: 60_000,
+  limit: config.isTest ? 10_000 : 20,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: { error: { code: 'RATE_LIMITED', message: 'Public demo limit reached – try again in a minute' } },
+});
 const write = [writeLimiter, requireApiKey];
+const demoMonitorWrite = (req, res, next) => {
+  const limiter = config.publicDemoMode ? demoWriteLimiter : writeLimiter;
+  limiter(req, res, () => {
+    if (config.publicDemoMode) return next();
+    return requireApiKey(req, res, next);
+  });
+};
 
 router.get('/health', (req, res) => res.json({ status: 'ok', uptimeSec: Math.round(process.uptime()), storage: getRepository().kind, time: new Date().toISOString() }));
 
 // Monitoring input
-router.post('/monitor', write, monitor.monitor);
-router.post('/monitor/sample', write, monitor.runSample);
-router.post('/monitor/simulate', write, monitor.runSimulation);
+router.post('/monitor', demoMonitorWrite, monitor.monitor);
+router.post('/monitor/sample', demoMonitorWrite, monitor.runSample);
+router.post('/monitor/simulate', demoMonitorWrite, monitor.runSimulation);
 router.post('/monitor/poll', write, monitor.pollNow);
 router.get('/monitor/apis', monitor.listApis);
 router.get('/monitor/status', monitor.status);

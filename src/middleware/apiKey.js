@@ -6,7 +6,10 @@ const AppError = require('../utils/AppError');
 
 /** Optional guard for write endpoints. Disabled when MONITOR_API_KEY is empty. */
 module.exports = function requireApiKey(req, res, next) {
-  if (!config.monitorApiKey) return next();
+  if (!config.monitorApiKey) {
+    if (config.publicDemoMode) return next(AppError.unauthorized());
+    return next();
+  }
   const given = req.get('x-api-key') || '';
   const a = Buffer.from(given);
   const b = Buffer.from(config.monitorApiKey);

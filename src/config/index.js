@@ -26,6 +26,8 @@ const config = {
   port: int(process.env.PORT, 4000),
   corsOrigins: list(process.env.CORS_ORIGINS), // empty = allow all
   monitorApiKey: process.env.MONITOR_API_KEY || '', // optional protection for write endpoints
+  publicDemoMode: bool(process.env.PUBLIC_DEMO_MODE, false),
+  publicDemoMaxItems: int(process.env.PUBLIC_DEMO_MAX_ITEMS, 100),
 
   db: {
     // When MONGODB_URI is empty the app falls back to an in-memory store (zero-config demo).

@@ -20,6 +20,10 @@ services:
         value: gemini-2.5-flash
       - key: MONITOR_API_KEY
         generateValue: true
+      - key: PUBLIC_DEMO_MODE
+        value: "true"
+      - key: PUBLIC_DEMO_MAX_ITEMS
+        value: "100"
       - key: ENABLE_SCHEDULER
         value: "false"
       - key: POLL_INTERVAL_MS
