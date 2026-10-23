@@ -26,6 +26,27 @@ test('GET /health', async () => {
   assert.equal(res.body.status, 'ok');
 });
 
+test('static UI is available while API requests wait for startup readiness', async () => {
+  let markReady;
+  const readiness = new Promise((resolve) => { markReady = resolve; });
+  const startingApp = createApp({ readiness });
+
+  const ui = await request(startingApp).get('/').expect(200);
+  assert.match(ui.text, /startupLoader/);
+  let healthFinished = false;
+  const healthRequest = request(startingApp).get('/health').then((res) => {
+    healthFinished = true;
+    return res;
+  });
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  assert.equal(healthFinished, false);
+  markReady();
+
+  const health = await healthRequest;
+  assert.equal(health.status, 200);
+  assert.equal(health.body.status, 'ok');
+});
+
 test('POST /monitor detects the anomaly and stores an AI/rule alert', async () => {
   const res = await request(app).post('/monitor').send(EXAMPLE).expect(201);
   assert.equal(res.body.summary.received, 2);

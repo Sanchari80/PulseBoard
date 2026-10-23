@@ -71,6 +71,11 @@ npm run monitor:file        # run data/sample-responses.json from the command li
 5. Open the `https://<name>.onrender.com` URL. The header should show *AI: gemini-2.5-flash* and
    *MongoDB*. Click **Run sample file**.
 
+The dashboard can show its startup animation while the application is connecting to MongoDB. Render's
+free web services may still take time to wake before they send the first page; a page hosted by that
+same sleeping service cannot animate before the first response arrives. Use an always-on Render plan
+if you need to avoid that cold-start wait.
+
 The included `src/config/targets.json` contains public demo endpoints, not company or patient APIs.
 The Render scheduler is off by default so deployment will not poll those demo targets indefinitely.
 Replace them with approved endpoints and configure any required headers using deployment secrets

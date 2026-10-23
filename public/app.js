@@ -459,6 +459,11 @@
     } finally {
       state.loading = false;
       btn.classList.remove('is-spinning');
+      const startupLoader = $('#startupLoader');
+      if (startupLoader) {
+        startupLoader.classList.add('startup-loader--hidden');
+        window.setTimeout(() => startupLoader.remove(), 350);
+      }
     }
   }
 

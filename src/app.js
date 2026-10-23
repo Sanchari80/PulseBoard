@@ -10,7 +10,7 @@ const requestContext = require('./middleware/requestContext');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
 const routes = require('./routes');
 
-function createApp() {
+function createApp({ readiness = Promise.resolve() } = {}) {
   const app = express();
   app.disable('x-powered-by');
   app.set('trust proxy', 1); // correct client IPs behind Render / Railway / Nginx
@@ -33,6 +33,15 @@ function createApp() {
   app.use(compression());
   app.use(requestContext);
   app.use(express.json({ limit: '2mb' }));
+
+  app.use(['/health', '/monitor', '/alerts', '/api'], async (req, res, next) => {
+    try {
+      await readiness;
+      next();
+    } catch (err) {
+      next(err);
+    }
+  });
 
   app.use(routes);
   // Same API under /api for clients that prefer a prefix (e.g. a separately hosted frontend).

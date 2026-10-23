@@ -9,13 +9,19 @@ const emailService = require('./services/emailService');
 const scheduler = require('./jobs/scheduler');
 
 async function main() {
-  await initRepository();
-  const app = createApp();
+  const readiness = initRepository();
+  const app = createApp({ readiness });
   const server = app.listen(config.port, () => {
     const ai = getProviderInfo();
     logger.info(`API monitor listening on http://localhost:${config.port} (${config.env})`);
     logger.info(`AI alerts: ${ai.provider}${ai.model ? ` (${ai.model})` : ''} · e-mail: ${emailService.isEnabled() ? 'on' : 'off'} · scheduler: ${config.scheduler.enabled ? 'on' : 'off'}`);
   });
+  try {
+    await readiness;
+  } catch (err) {
+    server.close();
+    throw err;
+  }
   scheduler.start();
 
   const shutdown = (signal) => {
